@@ -3,3 +3,7 @@ SCREEN_WIDTH = 800
 
 # Color
 RED = (255, 0, 0)
+BACKGROUND = (40, 25, 25)
+
+# Clock Framrate
+FPS = 60
