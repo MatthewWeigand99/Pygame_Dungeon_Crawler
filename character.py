@@ -1,4 +1,5 @@
 import pygame
+import math
 import constants
 
 class Character():
@@ -7,6 +8,12 @@ class Character():
         self.rect.center = (x, y)
     
     def move(self, dx, dy):
+        
+        # Control diagonal speed
+        if dx != 0 and dy != 0:
+            dx = dx * (math.sqrt(2) / 2)
+            dy = dy * (math.sqrt(2) / 2)
+        
         self.rect.x += dx
         self.rect.y += dy
     

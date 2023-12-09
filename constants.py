@@ -7,3 +7,6 @@ BACKGROUND = (40, 25, 25)
 
 # Clock Framrate
 FPS = 60
+
+# Player Variables
+SPEED = 5

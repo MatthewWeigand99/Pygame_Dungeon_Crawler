@@ -15,7 +15,6 @@ move_left = False
 move_right = False
 move_up = False
 move_down = False
-speed = 5
 
 # Create Player
 player = Character(100, 100)
@@ -29,14 +28,15 @@ while run:
     # Player Movement Calculations
     dx = 0
     dy = 0
+    
     if move_left:
-        dx = -speed
+        dx = -constants.SPEED
     if move_right:
-        dx = speed
+        dx = constants.SPEED
     if move_up:
-        dy = -speed
+        dy = -constants.SPEED
     if move_down:
-        dy = speed
+        dy = constants.SPEED
     
     player.move(dx, dy)
     
@@ -47,6 +47,7 @@ while run:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
+
         # Key Pressed
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
@@ -59,6 +60,7 @@ while run:
                 move_up = True
             if event.key == pygame.K_s:
                 move_down = True
+                
         # Key Unpressed       
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_a:
