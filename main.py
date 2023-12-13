@@ -11,6 +11,9 @@ pygame.display.set_caption('Dungeon Crawler')
 # Game Clock
 clock = pygame.time.Clock()
 
+# Define font
+font = pygame.font.Font('assets/fonts/AtariClassic.ttf', 20)
+
 # Define player movement variables
 move_left = False
 move_right = False
@@ -23,6 +26,11 @@ def scale_img(image, scale):
     h = image.get_height()
     
     return pygame.transform.scale(image, (w * scale, h * scale))
+
+# Load heart images
+heart_empty = scale_img(pygame.image.load('assets/images/items/heart_empty.png').convert_alpha(), constants.ITEM_SCALE)
+heart_half = scale_img(pygame.image.load('assets/images/items/heart_half.png').convert_alpha(), constants.ITEM_SCALE)
+heart_full = scale_img(pygame.image.load('assets/images/items/heart_full.png').convert_alpha(), constants.ITEM_SCALE)
 
 # Load weapon images
 bow_image = scale_img(pygame.image.load('assets/images/weapons/bow.png').convert_alpha(), constants.WEAPON_SCALE)
@@ -46,20 +54,60 @@ for mob in mob_types:
             temp_list.append(img)
         animation_list.append(temp_list)
     mob_animations.append(animation_list)
+
+# Function for displaying game information
+def draw_info():
+    pygame.draw.rect(screen, constants.PANEL, (0, 0, constants.SCREEN_WIDTH, 50))
+    pygame.draw.line(screen, constants.WHITE, (0, 50), (constants.SCREEN_WIDTH, 50))
     
+    half_heart_drawn = False
+    # Draw lives
+    for i in range(5):
+        if player.health >= ((i + 1) * 20):
+            screen.blit(heart_full, (10 + i * 50, 0))
+        elif (player.health % 20 > 0) and half_heart_drawn == False:
+            screen.blit(heart_half, (10 + i * 50, 0))
+            half_heart_drawn = True
+        else:
+            screen.blit(heart_empty, (10 + i * 50, 0))
+#Damage Text class
+class DamageText(pygame.sprite.Sprite):
+    def __init__(self, x, y, damage, color):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = font.render(damage, True, color)
+        self.rect = self.image.get_rect()
+        self.rect.center = (x, y)
+        self.counter = 0
+
+    def update(self):
+        # Move damage text up
+        self.rect.y -= 1
+        
+        # Delete counter after a few seconnds
+        self.counter += 1
+        if self.counter > 40:
+            self.kill()
+          
 # Create Player      
-player = Character(100, 100, mob_animations, 0)
+player = Character(100, 100, 100, mob_animations, 0)
+
+# Create enemy
+enemy = Character(200, 300, 100, mob_animations, 1)
 
 # Create player weapon
 bow = Weapon(bow_image, arrow_image)
 
+# Create empty enemy list
+enemy_list = []
+enemy_list.append(enemy)
+
 # Create Sprite groups
 arrow_group = pygame.sprite.Group()
+damage_text_group = pygame.sprite.Group()
 
 # Main Game Loop
 run = True
 while run:
-    
     screen.fill(constants.BACKGROUND)
     
     # Player Movement Calculations
@@ -79,17 +127,30 @@ while run:
     
     # Updates
     player.update()
+    
+    for enemy in enemy_list:
+        enemy.update()
+    
     arrow = bow.update(player)
     if arrow:
         arrow_group.add(arrow)
     for arrow in arrow_group:
-        arrow.update()
-      
+        damage, damage_pos = arrow.update(enemy_list)
+        if damage:
+            damage_text = DamageText(damage_pos.centerx, damage_pos.y, str(damage), constants.RED)
+            damage_text_group.add(damage_text)
+    damage_text_group.update()
+    
     # Draw on screen
     player.draw(screen)
     bow.draw(screen)
     for arrow in arrow_group:
         arrow.draw(screen)
+    for enemy in enemy_list:
+        enemy.draw(screen)
+    
+    damage_text_group.draw(screen)
+    draw_info()
     
     # Event Handling
     for event in pygame.event.get():
