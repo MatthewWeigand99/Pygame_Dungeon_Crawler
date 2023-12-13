@@ -13,3 +13,4 @@ FPS = 60
 
 # Player Variables
 SPEED = 5
+ARROW_SPEED = 10
