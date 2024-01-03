@@ -1,5 +1,6 @@
 import pygame
 import constants
+from world import World
 from character import Character
 from weapon import Weapon
 from items import Item
@@ -39,6 +40,12 @@ for x in range(4):
     img = scale_img(pygame.image.load(f'assets/images/items/coin_f{x}.png').convert_alpha(), constants.ITEM_SCALE)
     coin_img_list.append(img)
     
+# Load tile map images
+tile_list =[]
+for x in range(constants.TILE_TYPES):
+    tile_image = pygame.image.load(f'assets/images/tiles/{x}.png').convert_alpha()
+    tile_image = pygame.transform.scale(tile_image, (constants.TILE_SIZE, constants.TILE_SIZE))
+    tile_list.append(tile_image)
 
 # Load potion image
 potion_img = scale_img(pygame.image.load(f'assets/images/items/potion_red.png').convert_alpha(), constants.POTION_SCALE)
@@ -88,6 +95,23 @@ def draw_info():
             screen.blit(heart_empty, (10 + i * 50, 0))
     # Display score
     draw_text(f'X{player.score}', font, constants.WHITE, constants.SCREEN_WIDTH - 50, 15)
+
+world_data = [
+    [7, 7, 7, 7, 7],
+    [7, 0, 1, 2, 7],
+    [7, 3, 4, 5, 7],
+    [7, 5, 6, 6, 7],
+    [7, 7, 7, 7, 7]
+]
+
+world = World()
+world.process_data(world_data, tile_list)
+
+# Draw grid
+#def draw_grid():
+   #for x in range(30):
+        #pygame.draw.line(screen, constants.WHITE, (x * constants.TILE_SIZE, 0), (x * constants.TILE_SIZE, constants.SCREEN_HEIGHT))
+        #pygame.draw.line(screen, constants.WHITE, (0, x * constants.TILE_SIZE), (constants.SCREEN_WIDTH, x * constants.TILE_SIZE))
     
 #Damage Text class
 class DamageText(pygame.sprite.Sprite):
@@ -136,7 +160,7 @@ item_group.add(coin)
 run = True
 while run:
     screen.fill(constants.BACKGROUND)
-    
+
     # Player Movement Calculations
     dx = 0
     dy = 0
@@ -170,7 +194,10 @@ while run:
     item_group.update(player)
     
     # Draw on screen
+    world.draw(screen)
+    
     player.draw(screen)
+    
     bow.draw(screen)
     for arrow in arrow_group:
         arrow.draw(screen)
@@ -178,6 +205,7 @@ while run:
         enemy.draw(screen)
     
     damage_text_group.draw(screen)
+    
     item_group.draw(screen)
     draw_info()
     score_coin.draw(screen)
