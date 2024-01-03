@@ -7,6 +7,8 @@ SCALE = 3
 OFFSET = 12
 TILE_SIZE = 16 * SCALE
 TILE_TYPES = 18
+ROWS = 150
+COLS = 150
 
 # Colors
 RED = (255, 0, 0)

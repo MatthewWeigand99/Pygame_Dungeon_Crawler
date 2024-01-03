@@ -1,4 +1,5 @@
 import pygame
+import csv
 import constants
 from world import World
 from character import Character
@@ -12,6 +13,9 @@ pygame.display.set_caption('Dungeon Crawler')
 
 # Game Clock
 clock = pygame.time.Clock()
+
+# Define game variables
+level = 1
 
 # Define font
 font = pygame.font.Font('assets/fonts/AtariClassic.ttf', 20)
@@ -96,13 +100,17 @@ def draw_info():
     # Display score
     draw_text(f'X{player.score}', font, constants.WHITE, constants.SCREEN_WIDTH - 50, 15)
 
-world_data = [
-    [7, 7, 7, 7, 7],
-    [7, 0, 1, 2, 7],
-    [7, 3, 4, 5, 7],
-    [7, 5, 6, 6, 7],
-    [7, 7, 7, 7, 7]
-]
+# Create empty tile list
+world_data = []
+for row in range(constants.ROWS):
+    r = [-1] * constants.COLS
+    world_data.append(r)
+# Load in level data and create world
+with open(f'levels/level{level}_data.csv', newline='') as csvfile:
+    reader = csv.reader(csvfile, delimiter=',')
+    for x, row in enumerate(reader):
+        for y, tile in enumerate(row):
+            world_data[x][y] = int(tile)
 
 world = World()
 world.process_data(world_data, tile_list)
