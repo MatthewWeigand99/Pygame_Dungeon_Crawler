@@ -16,6 +16,7 @@ clock = pygame.time.Clock()
 
 # Define game variables
 level = 1
+screen_scroll = [0, 0]
 
 # Define font
 font = pygame.font.Font('assets/fonts/AtariClassic.ttf', 20)
@@ -131,6 +132,10 @@ class DamageText(pygame.sprite.Sprite):
         self.counter = 0
 
     def update(self):
+        # Reposition text based on screen scroll
+        self.rect.x += screen_scroll[0]
+        self.rect.y += screen_scroll[1]
+        
         # Move damage text up
         self.rect.y -= 1
         
@@ -140,7 +145,7 @@ class DamageText(pygame.sprite.Sprite):
             self.kill()
           
 # Create Player      
-player = Character(100, 100, 100, mob_animations, 0)
+player = Character(400, 300, 100, mob_animations, 0)
 
 # Create enemy
 enemy = Character(200, 300, 100, mob_animations, 1)
@@ -157,7 +162,7 @@ arrow_group = pygame.sprite.Group()
 damage_text_group = pygame.sprite.Group()
 item_group = pygame.sprite.Group()
 
-score_coin = Item(constants.SCREEN_WIDTH - 115, 23, 0, coin_img_list)
+score_coin = Item(constants.SCREEN_WIDTH - 115, 23, 0, coin_img_list, True)
 
 potion = Item(200, 200, 1, [potion_img])
 item_group.add(potion)
@@ -182,24 +187,28 @@ while run:
     if move_down:
         dy = constants.SPEED
     
-    player.move(dx, dy)
+    screen_scroll = player.move(dx, dy)
+    #print(screen_scroll)
     
-    # Updates
+    # Update all objects
+    world.update(screen_scroll)
+    
     player.update()
     
     for enemy in enemy_list:
+        enemy.ai(screen_scroll)
         enemy.update()
     
     arrow = bow.update(player)
     if arrow:
         arrow_group.add(arrow)
     for arrow in arrow_group:
-        damage, damage_pos = arrow.update(enemy_list)
+        damage, damage_pos = arrow.update(screen_scroll, enemy_list)
         if damage:
             damage_text = DamageText(damage_pos.centerx, damage_pos.y, str(damage), constants.RED)
             damage_text_group.add(damage_text)
     damage_text_group.update()
-    item_group.update(player)
+    item_group.update(screen_scroll, player)
     
     # Draw on screen
     world.draw(screen)
